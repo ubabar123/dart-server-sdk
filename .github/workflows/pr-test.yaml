@@ -1,0 +1,31 @@
+name: PR Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        sdk: [3.1, stable, beta]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      
+      # TODO: Uncomment once there's something to test!
+      # - name: Install dependencies
+      #  run: dart pub get
+
+      # - name: Run tests
+      #   run: dart test
