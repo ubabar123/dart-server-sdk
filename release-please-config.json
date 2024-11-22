@@ -2,7 +2,7 @@
   "signoff": "OpenFeature Bot <109696520+openfeaturebot@users.noreply.github.com>",
   "packages": {
     ".": {
-      "release-type": "dart",
+      "release-type": "simple",
       "prerelease": false,
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
