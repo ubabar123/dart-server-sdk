@@ -1,4 +1,4 @@
-## This workflow runs on pull requests into the main branch. Direct pushes to main are blocked.
+# This workflow runs on pull requests into the main branch. Direct pushes to main are blocked.
 
 name: Main Workflow
 
@@ -9,11 +9,14 @@ on:
 
 jobs:
   main-tests:
+    name: Validate and Test Main Branch
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
@@ -21,22 +24,57 @@ jobs:
           dart-version: stable
 
       - name: Install Dependencies
-        run: dart pub get
+        run: |
+          echo "Installing dependencies..."
+          if ! dart pub get; then
+            echo "❌ Failed to install dependencies. Exiting..."
+            exit 1
+          fi
+
+      - name: Check Code Formatting
+        run: |
+          echo "Checking code formatting..."
+          if ! dart format --set-exit-if-changed .; then
+            echo "❌ Code formatting issues detected. Please format your code with 'dart format'."
+            exit 1
+          fi
 
       - name: Run Static Analysis
-        run: dart analyze
+        run: |
+          echo "Running static analysis..."
+          if ! dart analyze; then
+            echo "❌ Static analysis failed. Please fix the issues above."
+            exit 1
+          fi
 
       - name: Run Full Test Suite
-        run: dart test --coverage=coverage
+        run: |
+          echo "Running full test suite with coverage..."
+          if ! dart test --coverage=coverage; then
+            echo "❌ Tests failed. Please fix the errors above."
+            exit 1
+          fi
 
       - name: Format Coverage Report
-        run: dart pub global activate coverage && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info
+        run: |
+          echo "Formatting coverage report..."
+          dart pub global activate coverage
+          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           file: coverage/lcov.info
 
+      - name: Upload Coverage Artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage/lcov.info
+
       - name: Deploy to Production
-        if: github.event.pull_request.merged
-        run: echo "Deploying to Production..."
+        if: github.event.pull_request.merged && github.ref == 'refs/heads/main'
+        run: |
+          echo "Deploying to Production..."
+          # Add your deployment commands here

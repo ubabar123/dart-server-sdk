@@ -1,4 +1,4 @@
-## This workflow runs on pull requests into the main qa. SDirect pushes to main are blocked.
+# This workflow runs on pull requests into the qa branch. Direct pushes to qa are blocked.
 
 name: QA Workflow
 
@@ -9,6 +9,7 @@ on:
 
 jobs:
   qa-tests:
+    name: Run QA Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -21,21 +22,92 @@ jobs:
           dart-version: stable
 
       - name: Install Dependencies
-        run: dart pub get
+        run: |
+          echo "Installing dependencies..."
+          if ! dart pub get; then
+            echo "❌ Failed to install dependencies. Exiting..."
+            exit 1
+          fi
 
       - name: Run Static Analysis
-        run: dart analyze
+        run: |
+          echo "Running static analysis..."
+          if ! dart analyze lib/ > analysis_report.txt 2> error_log.txt; then
+            echo "❌ Static analysis failed. See error details below:"
+            cat error_log.txt
+            exit 1
+          else
+            echo "✅ Static analysis completed successfully."
+          fi
 
-      - name: Run Unit Tests
-        run: dart test --coverage=coverage
+      - name: Upload Analysis Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: static-analysis-artifacts
+          path: |
+            analysis_report.txt
+            error_log.txt
+          retention-days: 7
+
+      - name: Run Unit Tests with Coverage
+        run: |
+          echo "Running unit tests with coverage..."
+          if ! dart test --coverage=coverage; then
+            echo "❌ Unit tests failed. Exiting..."
+            exit 1
+          else
+            echo "✅ Unit tests completed successfully."
+          fi
 
       - name: Format Coverage Report
-        run: dart pub global activate coverage && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info
+        run: |
+          echo "Formatting coverage report..."
+          if ! dart pub global activate coverage; then
+            echo "❌ Failed to activate the coverage package. Exiting..."
+            exit 1
+          fi
+          if ! dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info; then
+            echo "❌ Failed to format the coverage report. Exiting..."
+            exit 1
+          else
+            echo "✅ Coverage report formatted successfully."
+          fi
+
+      - name: Upload Coverage Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-artifacts
+          path: coverage/lcov.info
+          retention-days: 7
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           file: coverage/lcov.info
 
-      - name: Check Code Quality
-        run: dart pub global run dart_code_metrics:metrics analyze lib
+      - name: Run Code Quality Check
+        run: |
+          echo "Running code quality checks with dart_code_metrics..."
+          if ! dart pub global activate dart_code_metrics; then
+            echo "❌ Failed to activate dart_code_metrics. Exiting..."
+            exit 1
+          fi
+          if ! dart pub global run dart_code_metrics:metrics analyze lib > quality_report.txt 2> quality_error_log.txt; then
+            echo "❌ Code quality check failed. See error details below:"
+            cat quality_error_log.txt
+            exit 1
+          else
+            echo "✅ Code quality checks passed."
+          fi
+
+      - name: Upload Quality Check Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-quality-artifacts
+          path: |
+            quality_report.txt
+            quality_error_log.txt
+          retention-days: 7

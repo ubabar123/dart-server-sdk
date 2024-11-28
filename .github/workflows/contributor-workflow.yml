@@ -1,5 +1,5 @@
-## This workflow analyzes the Dart Server SDK and a Go-feature-integration example project
-## to identify issues and commits for resolution.
+# This workflow analyzes the Dart Server SDK and a Go-feature-integration example project
+# to identify issues and commits for resolution.
 
 name: Contributor Workflow
 
@@ -44,7 +44,7 @@ jobs:
             echo "✅ Static analysis completed successfully. No critical errors found."
           fi
 
-      - name: Highlight Info, Warnings, and Errors
+      - name: Categorize and Count Analysis Results
         run: |
           echo "Categorizing analysis results..."
           cd dart-server-sdk-openfeature
@@ -52,17 +52,33 @@ jobs:
           grep -i "warning" analysis_report.txt > warning_report.txt || echo "No warnings found."
           grep -i "error" analysis_report.txt > error_report.txt || echo "No errors found."
 
-          echo "Summary of analysis results:"
-          echo "Informational messages:"
-          cat info_report.txt || true
-          echo ""
-          echo "Warnings:"
-          cat warning_report.txt || true
-          echo ""
-          echo "Errors:"
-          cat error_report.txt || true
+          INFO_COUNT=$(wc -l < info_report.txt || echo 0)
+          WARNING_COUNT=$(wc -l < warning_report.txt || echo 0)
+          ERROR_COUNT=$(wc -l < error_report.txt || echo 0)
 
-      - name: Identify Specific Commits for Easy Resolution
+          echo "Summary of analysis results:"
+          echo "Informational messages: $INFO_COUNT"
+          echo "Warnings: $WARNING_COUNT"
+          echo "Errors: $ERROR_COUNT"
+          echo ""
+
+          if [[ $INFO_COUNT -gt 0 ]]; then
+            echo "Informational messages:"
+            cat info_report.txt
+            echo ""
+          fi
+          if [[ $WARNING_COUNT -gt 0 ]]; then
+            echo "Warnings:"
+            cat warning_report.txt
+            echo ""
+          fi
+          if [[ $ERROR_COUNT -gt 0 ]]; then
+            echo "Errors:"
+            cat error_report.txt
+            echo ""
+          fi
+
+      - name: Identify Specific Commits for Issues
         run: |
           echo "Identifying specific commits for issues in the core SDK..."
           cd dart-server-sdk-openfeature
@@ -125,7 +141,7 @@ jobs:
             echo "✅ Static analysis completed successfully. No critical errors found."
           fi
 
-      - name: Highlight Info, Warnings, and Errors
+      - name: Categorize and Count Analysis Results
         run: |
           echo "Categorizing analysis results..."
           cd dart-server-sdk-openfeature/examples/go-feature-integration
@@ -133,17 +149,33 @@ jobs:
           grep -i "warning" analysis_report.txt > warning_report.txt || echo "No warnings found."
           grep -i "error" analysis_report.txt > error_report.txt || echo "No errors found."
 
-          echo "Summary of analysis results:"
-          echo "Informational messages:"
-          cat info_report.txt || true
-          echo ""
-          echo "Warnings:"
-          cat warning_report.txt || true
-          echo ""
-          echo "Errors:"
-          cat error_report.txt || true
+          INFO_COUNT=$(wc -l < info_report.txt || echo 0)
+          WARNING_COUNT=$(wc -l < warning_report.txt || echo 0)
+          ERROR_COUNT=$(wc -l < error_report.txt || echo 0)
 
-      - name: Identify Specific Commits for Easy Resolution
+          echo "Summary of analysis results:"
+          echo "Informational messages: $INFO_COUNT"
+          echo "Warnings: $WARNING_COUNT"
+          echo "Errors: $ERROR_COUNT"
+          echo ""
+
+          if [[ $INFO_COUNT -gt 0 ]]; then
+            echo "Informational messages:"
+            cat info_report.txt
+            echo ""
+          fi
+          if [[ $WARNING_COUNT -gt 0 ]]; then
+            echo "Warnings:"
+            cat warning_report.txt
+            echo ""
+          fi
+          if [[ $ERROR_COUNT -gt 0 ]]; then
+            echo "Errors:"
+            cat error_report.txt
+            echo ""
+          fi
+
+      - name: Identify Specific Commits for Issues
         run: |
           echo "Identifying specific commits for issues in the Go-feature-integration example..."
           cd dart-server-sdk-openfeature/examples/go-feature-integration

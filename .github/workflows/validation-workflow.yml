@@ -1,4 +1,4 @@
-## This workflow validates that branch and commit names are standardized for better workflow.
+# This workflow validates that branch and commit names are standardized for better workflow.
 
 name: Validation Workflow
 
@@ -14,13 +14,14 @@ jobs:
   validate-branch-name:
     runs-on: ubuntu-latest
     steps:
-      - name: Extract Branch Name
+      - name: Extract and Validate Branch Name
         run: |
-          echo "Branch name: ${{ github.ref_name }}"
-          BRANCH_NAME=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
-          echo "Extracted branch name: $BRANCH_NAME"
-          
-          # Check branch naming convention
+          set -euo pipefail
+          echo "Validating branch name..."
+
+          BRANCH_NAME="${{ github.ref_name }}"
+          echo "Branch name: $BRANCH_NAME"
+
           if [[ "$BRANCH_NAME" =~ ^(qa|beta|main)$ ]]; then
             echo "✅ Branch name '$BRANCH_NAME' is valid for protected branches (qa, beta, main)."
           elif [[ "$BRANCH_NAME" =~ ^(feat|fix|hotfix|chore|test|refactor|release)/[a-z0-9_-]+$ ]]; then
@@ -30,19 +31,23 @@ jobs:
             echo "Valid types: feat, fix, hotfix, chore, test, refactor, release, qa, beta, main"
             exit 1
           fi
-        shell: bash
 
   validate-commit-messages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Validate Commit Messages
         run: |
-          echo "Checking commit messages..."
+          set -euo pipefail
+          echo "Validating commit messages..."
+
           REGEX="^(feat|fix|hotfix|chore|test|refactor|release)(\\([a-z0-9_-]+\\))?: .{1,72}$"
-          INVALID_COMMITS=$(git log --format=%s origin/main..HEAD | grep -vE "$REGEX" || true)
+          INVALID_COMMITS=$(git log --format=%s HEAD | grep -vE "$REGEX" || true)
+
           if [[ -n "$INVALID_COMMITS" ]]; then
             echo "❌ The following commit messages do not follow the convention:"
             echo "$INVALID_COMMITS"
@@ -56,4 +61,3 @@ jobs:
           else
             echo "✅ All commit messages follow the convention."
           fi
-        shell: bash
