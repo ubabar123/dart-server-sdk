@@ -4,11 +4,7 @@
 name: Contributor Workflow
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - qa
-      - beta
+  workflow_call: # Enables reusability from the parent pipeline
 
 jobs:
   analyze-core:

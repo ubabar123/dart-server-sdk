@@ -3,9 +3,7 @@
 name: Beta Workflow
 
 on:
-  pull_request:
-    branches:
-      - beta
+  workflow_call: # Enables reusability from the parent pipeline
 
 jobs:
   beta-tests:
