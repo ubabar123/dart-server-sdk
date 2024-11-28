@@ -10,7 +10,7 @@ on:
 
 jobs:
   validation:
-    name: Run Validation Workflow
+    name: Validation Workflow
     runs-on: ubuntu-latest
     outputs:
       branch_name: ${{ steps.extract.outputs.branch_name }}
@@ -22,7 +22,7 @@ jobs:
           echo "branch_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT
 
-      - name: Run Validation Workflow
+      - name: Validation Workflow
         uses: ./.github/workflows/validation-workflow.yml
         with:
           branch_name: ${{ steps.extract.outputs.branch_name }}
