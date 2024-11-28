@@ -34,6 +34,11 @@ jobs:
     with:
       branch_name: ${{ needs.determine-workflow.outputs.branch }}
       event_name: ${{ needs.determine-workflow.outputs.event }}
+    steps:
+      - name: Debug Validation Inputs
+        run: |
+          echo "Branch Name Passed: ${{ needs.determine-workflow.outputs.branch_name }}"
+          echo "Event Name Passed: ${{ needs.determine-workflow.outputs.event }}"
 
   trigger-contributor-workflow:
     name: Trigger Contributor Workflow
