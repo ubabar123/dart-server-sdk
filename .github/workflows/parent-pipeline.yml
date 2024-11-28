@@ -1,102 +1,57 @@
-# This parent pipeline only runs and routes to the correct child workflow after validation checks.
-
 name: Parent Pipeline
 
 on:
-  push:
-    branches:
-      - '*' # Matches any branch
-  pull_request:
-    branches:
-      - '*' # Matches pull requests to any branch
+  workflow_call:
+    inputs:
+      branch_name:
+        description: 'Branch name'
+        required: true
+        type: string
+      event_name:
+        description: 'Event name'
+        required: true
+        type: string
+      workflow:
+        description: 'Workflow to trigger'
+        required: true
+        type: string
 
 jobs:
-  determine-workflow:
-    name: Determine Workflow Context
+  trigger-workflow:
+    name: Trigger Workflow
     runs-on: ubuntu-latest
-    outputs:
-      branch_name: ${{ steps.determine.outputs.branch_name }}
-      event_name: ${{ steps.determine.outputs.event_name }}
     steps:
-      - id: determine
-        name: Extract Branch and Event
-        run: |
-          echo "Extracting branch and event context..."
-          # Extract branch name based on ref type
-          ref="${GITHUB_REF}"
-          if [[ "$ref" == refs/heads/* ]]; then
-            branch_name="${ref#refs/heads/}" # Strip refs/heads/
-          elif [[ "$ref" == refs/pull/* ]]; then
-            branch_name="pull_request_${GITHUB_EVENT_PULL_REQUEST_NUMBER}" # Handle pull requests
-          elif [[ "$ref" == refs/tags/* ]]; then
-            branch_name="${ref#refs/tags/}" # Handle tags
-          else
-            branch_name="$ref" # Default to raw ref
-          fi
+      - name: Trigger Main Workflow
+        if: ${{ inputs.workflow == 'main' }}
+        uses: ./.github/workflows/main-workflow.yml
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          event_name: ${{ inputs.event_name }}
 
-          # Log the branch and event name
-          echo "Branch Name: $branch_name"
-          echo "Event Name: ${{ github.event_name }}"
+      - name: Trigger QA Workflow
+        if: ${{ inputs.workflow == 'qa' }}
+        uses: ./.github/workflows/qa-workflow.yml
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          event_name: ${{ inputs.event_name }}
 
-          # Set outputs
-          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
-          echo "event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT
+      - name: Trigger Validation Workflow
+        if: ${{ inputs.workflow == 'validation' }}
+        uses: ./.github/workflows/validation-workflow.yml
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          event_name: ${{ inputs.event_name }}
 
-      - name: Debug Branch Name
-        run: |
-          echo "Extracted Branch Name: ${{ needs.determine-workflow.outputs.branch_name }}"
-          echo "Event Name: ${{ needs.determine-workflow.outputs.event_name }}"
+      - name: Trigger Beta Workflow
+        if: ${{ inputs.workflow == 'beta' }}
+        uses: ./.github/workflows/beta-workflow.yml
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          event_name: ${{ inputs.event_name }}
 
-  trigger-validation:
-    name: Trigger Validation Workflow
-    needs: determine-workflow
-    uses: ./.github/workflows/validation-workflow.yml
-    with:
-      branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
-      event_name: ${{ needs.determine-workflow.outputs.event_name }}
-
-  trigger-contributor-workflow:
-    name: Trigger Contributor Workflow
-    needs: trigger-validation
-    if: |
-      github.event_name == 'push' &&
-      needs.determine-workflow.outputs.branch_name != 'main' &&
-      needs.determine-workflow.outputs.branch_name != 'qa' &&
-      needs.determine-workflow.outputs.branch_name != 'beta'
-    uses: ./.github/workflows/contributor-workflow.yml
-    with:
-      branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
-      event_name: ${{ needs.determine-workflow.outputs.event_name }}
-
-  trigger-qa-workflow:
-    name: Trigger QA Workflow
-    needs: trigger-validation
-    if: |
-      github.event_name == 'pull_request' &&
-      github.base_ref == 'qa'
-    uses: ./.github/workflows/qa-workflow.yml
-    with:
-      branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
-      event_name: ${{ needs.determine-workflow.outputs.event_name }}
-
-  trigger-beta-workflow:
-    name: Trigger Beta Workflow
-    needs: trigger-validation
-    if: |
-      github.event_name == 'pull_request' &&
-      github.base_ref == 'beta'
-    uses: ./.github/workflows/beta-workflow.yml
-    with:
-      branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
-      event_name: ${{ needs.determine-workflow.outputs.event_name }}
-
-  trigger-main-workflow:
-    name: Trigger Main Workflow
-    needs: trigger-validation
-    if: |
-      github.event_name == 'pull_request' &&
-      github.base_ref == 'main'
-    uses: ./.github/workflows/main-workflow.yml
-    with:
-      branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
-      event_name: ${{ needs.determine-workflow.outputs.event_name }}
+      - name: Trigger Contributor Workflow
+        if: ${{ inputs.workflow == 'contributor' }}
+        uses: ./.github/workflows/contributor-workflow.yml
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          event_name: ${{ inputs.event_name }}
