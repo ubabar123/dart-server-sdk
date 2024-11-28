@@ -1,11 +1,9 @@
-# This workflow runs on pull requests into the main branch. Direct pushes to main are blocked.
+# This workflow validates and tests pull requests into the main branch. Direct pushes to main are blocked.
 
 name: Main Workflow
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call: # Makes this workflow reusable
 
 jobs:
   main-tests:
