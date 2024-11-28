@@ -4,7 +4,11 @@
 name: Contributor Workflow
 
 on:
-  workflow_call: # Enables reusability from the parent pipeline
+  push:
+    branches-ignore:
+      - main
+      - qa
+      - beta
 
 jobs:
   analyze-core:
@@ -105,8 +109,8 @@ jobs:
 
   analyze-go-integration:
     name: Analyze Go Feature Integration Example
-    runs-on: ubuntu-latest
     needs: analyze-core
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3

@@ -14,6 +14,7 @@ on:
 
 jobs:
   validate-branch-name:
+    name: Validate Branch Name
     runs-on: ubuntu-latest
     steps:
       - name: Validate Branch Name
@@ -34,6 +35,7 @@ jobs:
           fi
 
   validate-commit-messages:
+    name: Validate Commit Messages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -45,6 +47,8 @@ jobs:
         run: |
           set -euo pipefail
           echo "Validating commit messages..."
+
+          # Updated regex
           REGEX="^(feat|fix|hotfix|chore|test|refactor|release)(\([a-z0-9_-]+\))?: .{1,72}$"
           INVALID_COMMITS=$(git log --format=%s HEAD | grep -vE "$REGEX" || true)
 

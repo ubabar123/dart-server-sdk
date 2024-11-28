@@ -1,18 +1,13 @@
 name: Beta Workflow
 
 on:
-  workflow_call:
-    inputs:
-      branch_name:
-        required: true
-        type: string
-      event_name:
-        required: true
-        type: string
+  pull_request:
+    branches:
+      - beta
 
 jobs:
   beta-tests:
-    name: Test Beta Branch with Dart Matrix
+    name: Test Beta Branch with Dart Versions Matrix
     runs-on: ubuntu-latest
 
     strategy:
