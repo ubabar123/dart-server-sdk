@@ -1,0 +1,41 @@
+## This workflow runs on pull requests into the main qa. SDirect pushes to main are blocked.
+
+name: QA Workflow
+
+on:
+  pull_request:
+    branches:
+      - qa
+
+jobs:
+  qa-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          dart-version: stable
+
+      - name: Install Dependencies
+        run: dart pub get
+
+      - name: Run Static Analysis
+        run: dart analyze
+
+      - name: Run Unit Tests
+        run: dart test --coverage=coverage
+
+      - name: Format Coverage Report
+        run: dart pub global activate coverage && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/lcov.info
+
+      - name: Check Code Quality
+        run: dart pub global run dart_code_metrics:metrics analyze lib

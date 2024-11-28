@@ -1,5 +1,5 @@
-## This workflow runs on push events to any branch except main, qa, or beta.
-## Allows contributors to push changes to feature branches or other non-protected branches for lightweight checks.
+## This workflow analyzes the Dart Server SDK and a Go-feature-integration example project
+## to identify issues and commits for resolution.
 
 name: Contributor Workflow
 
@@ -11,9 +11,9 @@ on:
       - beta
 
 jobs:
-  contributor-checks:
+  analyze-core:
+    name: Analyze Core Dart Server SDK
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -24,7 +24,150 @@ jobs:
           dart-version: stable
 
       - name: Install Dependencies
-        run: dart pub get
+        run: |
+          echo "Installing dependencies for core SDK..."
+          cd dart-server-sdk-openfeature
+          if ! dart pub get; then
+            echo "❌ Failed to install dependencies for the core SDK. Exiting..."
+            exit 1
+          fi
 
       - name: Run Static Analysis
-        run: dart analyze
+        run: |
+          echo "Running static analysis for core SDK..."
+          cd dart-server-sdk-openfeature
+          if ! dart analyze lib/ > analysis_report.txt 2> error_log.txt; then
+            echo "❌ Static analysis failed with errors. See details below:"
+            cat error_log.txt
+            exit 1
+          else
+            echo "✅ Static analysis completed successfully. No critical errors found."
+          fi
+
+      - name: Highlight Info, Warnings, and Errors
+        run: |
+          echo "Categorizing analysis results..."
+          cd dart-server-sdk-openfeature
+          grep -i "info" analysis_report.txt > info_report.txt || echo "No informational messages found."
+          grep -i "warning" analysis_report.txt > warning_report.txt || echo "No warnings found."
+          grep -i "error" analysis_report.txt > error_report.txt || echo "No errors found."
+
+          echo "Summary of analysis results:"
+          echo "Informational messages:"
+          cat info_report.txt || true
+          echo ""
+          echo "Warnings:"
+          cat warning_report.txt || true
+          echo ""
+          echo "Errors:"
+          cat error_report.txt || true
+
+      - name: Identify Specific Commits for Easy Resolution
+        run: |
+          echo "Identifying specific commits for issues in the core SDK..."
+          cd dart-server-sdk-openfeature
+          while IFS= read -r line; do
+            file=$(echo $line | awk -F ':' '{print $1}')
+            if [[ -n "$file" ]]; then
+              git_log=$(git log -n 1 --pretty=format:"%h by %an <%ae>" -- "$file")
+              echo "File: $file"
+              echo "Issue: $line"
+              echo "Commit: $git_log"
+            else
+              echo "No file information could be extracted for: $line"
+            fi
+          done < analysis_report.txt
+
+      - name: Upload Analysis Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: core-sdk-analysis
+          path: |
+            dart-server-sdk-openfeature/analysis_report.txt
+            dart-server-sdk-openfeature/error_log.txt
+            dart-server-sdk-openfeature/info_report.txt
+            dart-server-sdk-openfeature/warning_report.txt
+            dart-server-sdk-openfeature/error_report.txt
+          retention-days: 1
+
+  analyze-go-integration:
+    name: Analyze Go Feature Integration Example
+    runs-on: ubuntu-latest
+    needs: analyze-core
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: stable
+
+      - name: Install Dependencies
+        run: |
+          echo "Installing dependencies for Go-feature-integration example..."
+          cd dart-server-sdk-openfeature/examples/go-feature-integration
+          if ! go mod tidy; then
+            echo "❌ Failed to install dependencies for Go example. Exiting..."
+            exit 1
+          fi
+
+      - name: Run Static Analysis
+        run: |
+          echo "Running static analysis for Go-feature-integration example..."
+          cd dart-server-sdk-openfeature/examples/go-feature-integration
+          if ! go vet ./... > analysis_report.txt 2> error_log.txt; then
+            echo "❌ Static analysis failed with errors. See details below:"
+            cat error_log.txt
+            exit 1
+          else
+            echo "✅ Static analysis completed successfully. No critical errors found."
+          fi
+
+      - name: Highlight Info, Warnings, and Errors
+        run: |
+          echo "Categorizing analysis results..."
+          cd dart-server-sdk-openfeature/examples/go-feature-integration
+          grep -i "info" analysis_report.txt > info_report.txt || echo "No informational messages found."
+          grep -i "warning" analysis_report.txt > warning_report.txt || echo "No warnings found."
+          grep -i "error" analysis_report.txt > error_report.txt || echo "No errors found."
+
+          echo "Summary of analysis results:"
+          echo "Informational messages:"
+          cat info_report.txt || true
+          echo ""
+          echo "Warnings:"
+          cat warning_report.txt || true
+          echo ""
+          echo "Errors:"
+          cat error_report.txt || true
+
+      - name: Identify Specific Commits for Easy Resolution
+        run: |
+          echo "Identifying specific commits for issues in the Go-feature-integration example..."
+          cd dart-server-sdk-openfeature/examples/go-feature-integration
+          while IFS= read -r line; do
+            file=$(echo $line | awk -F ':' '{print $1}')
+            if [[ -n "$file" ]]; then
+              git_log=$(git log -n 1 --pretty=format:"%h by %an <%ae>" -- "$file")
+              echo "File: $file"
+              echo "Issue: $line"
+              echo "Commit: $git_log"
+            else
+              echo "No file information could be extracted for: $line"
+            fi
+          done < analysis_report.txt
+
+      - name: Upload Analysis Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: go-integration-analysis
+          path: |
+            dart-server-sdk-openfeature/examples/go-feature-integration/analysis_report.txt
+            dart-server-sdk-openfeature/examples/go-feature-integration/error_log.txt
+            dart-server-sdk-openfeature/examples/go-feature-integration/info_report.txt
+            dart-server-sdk-openfeature/examples/go-feature-integration/warning_report.txt
+            dart-server-sdk-openfeature/examples/go-feature-integration/error_report.txt
+          retention-days: 1
