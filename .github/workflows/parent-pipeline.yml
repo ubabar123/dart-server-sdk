@@ -4,8 +4,11 @@ name: Parent Pipeline
 
 on:
   push:
-    branches:
-      - '*' # Matches any branch
+    branches-ignore:
+      - main
+      - qa
+      - beta
+
   pull_request:
     branches:
       - '*' # Matches pull requests to any branch
