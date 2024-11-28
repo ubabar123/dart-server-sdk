@@ -1,15 +1,22 @@
+# This workflow is for testing the beta branch with a Dart matrix.
+# Direct pushes to beta are blocked, only pull requests are allowed.
+
 name: Beta Workflow
 
 on:
-  pull_request:
-    branches:
-      - beta
+  workflow_call: # Makes the workflow reusable
+    inputs:
+      branch_name:
+        required: true
+        type: string
+      event_name:
+        required: true
+        type: string
 
 jobs:
   beta-tests:
-    name: Test Beta Branch with Dart Versions Matrix
+    name: Test Beta Branch with Dart Matrix
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         dart-version: [stable, beta, dev]

@@ -3,7 +3,7 @@
 name: QA Workflow
 
 on:
-  workflow_call:
+  workflow_call: # Makes the workflow reusable
     inputs:
       branch_name:
         required: true
