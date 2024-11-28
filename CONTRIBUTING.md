@@ -227,10 +227,13 @@ Merges into the main branch trigger a new version release if changes are detecte
 
 For versioning standards, follow [Dart's semantic versioning](https://dart.dev/tools/pub/versioning).
 
+Here’s your updated **Submitting a Pull Request** section with improved formatting and alignment for clarity and readability:
+
+
+
 ## **Submitting a Pull Request**
 
 Contributing to the project is highly encouraged! Please follow these steps to submit a well-structured pull request (PR):
-
 
 
 ### **Steps to Submit a Pull Request**
@@ -261,8 +264,48 @@ Contributing to the project is highly encouraged! Please follow these steps to s
 4. **Commit Your Changes**:
    - Use meaningful commit messages following the [Conventional Commits](https://www.conventionalcommits.org) format:
      ```bash
-     git commit -m "feat(sdk): implement new feature"
+     git commit -s -m "feat(sdk): implement new feature"
      ```
+
+---
+
+### **How to Sign Off Commits**
+
+To certify your contribution, you must add a `Signed-off-by` line to your commit message. This is required to comply with the [Developer Certificate of Origin (DCO)](https://developercertificate.org/).
+
+1. **Sign Off When Committing**:
+   - Use the `-s` or `--signoff` flag when creating a commit:
+     ```bash
+     git commit -s -m "feat: add authentication module"
+     ```
+   - This will add a `Signed-off-by` line to your commit message:
+     ```
+     feat: add authentication module
+
+     Signed-off-by: Your Name <your.email@example.com>
+     ```
+
+2. **Ensure Git User Configuration**:
+   - Make sure your Git username and email are correctly configured:
+     ```bash
+     git config --global user.name "Your Name"
+     git config --global user.email "your.email@example.com"
+     ```
+
+3. **Forgot to Sign Off?**:
+   - If you forgot to sign off a commit, you can fix it by amending the commit:
+     ```bash
+     git commit --amend --signoff
+     git push --force-with-lease
+     ```
+
+   - For multiple commits, rebase with `--signoff`:
+     ```bash
+     git rebase --signoff HEAD~<number-of-commits>
+     git push --force-with-lease
+     ```
+
+---
 
 5. **Push Your Branch**:
    - Push your changes to the remote repository:
@@ -271,12 +314,19 @@ Contributing to the project is highly encouraged! Please follow these steps to s
      ```
 
 6. **Open a Pull Request**:
-   - Go to the repository on GitHub.
+   - Navigate to the repository on GitHub.
    - Open a pull request targeting the `qa` branch.
    - Provide a clear title and description summarizing your changes, including:
      - The problem your changes solve.
      - The approach you used.
      - Links to relevant issues or discussions (e.g., `Closes #123`).
+
+
+
+### **Notes**:
+
+- Ensure your branch passes all tests and validations before creating a PR.
+- If you encounter issues during the sign-off process, check your DCO compliance or consult the contributing guidelines.
 
 ---
 
