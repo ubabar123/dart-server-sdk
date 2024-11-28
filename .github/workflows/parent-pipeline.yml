@@ -22,21 +22,23 @@ jobs:
         name: Extract Branch and Event
         run: |
           echo "Extracting branch and event context..."
-
-        # Extract branch name based on ref type
-          if [[ "${{ github.ref }}" == refs/heads/* ]]; then
-            branch_name="${{ github.ref#refs/heads/ }}" # Strip refs/heads/
-          elif [[ "${{ github.ref }}" == refs/pull/* ]]; then
-            branch_name="pull_request_${{ github.event.pull_request.number }}" # Handle pull requests
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            branch_name="${{ github.ref#refs/tags/ }}" # Handle tags
+          # Extract branch name based on ref type
+          ref="${GITHUB_REF}"
+          if [[ "$ref" == refs/heads/* ]]; then
+            branch_name="${ref#refs/heads/}" # Strip refs/heads/
+          elif [[ "$ref" == refs/pull/* ]]; then
+            branch_name="pull_request_${GITHUB_EVENT_PULL_REQUEST_NUMBER}" # Handle pull requests
+          elif [[ "$ref" == refs/tags/* ]]; then
+            branch_name="${ref#refs/tags/}" # Handle tags
           else
-            branch_name="${{ github.ref }}" # Default to raw ref
+            branch_name="$ref" # Default to raw ref
           fi
+
+          # Log the branch and event name
           echo "Branch Name: $branch_name"
           echo "Event Name: ${{ github.event_name }}"
 
-        # Set outputs
+          # Set outputs
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
           echo "event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT
 
