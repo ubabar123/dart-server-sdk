@@ -1,0 +1,42 @@
+## This workflow runs on pull requests into the main branch. Direct pushes to main are blocked.
+
+name: Main Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  main-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          dart-version: stable
+
+      - name: Install Dependencies
+        run: dart pub get
+
+      - name: Run Static Analysis
+        run: dart analyze
+
+      - name: Run Full Test Suite
+        run: dart test --coverage=coverage
+
+      - name: Format Coverage Report
+        run: dart pub global activate coverage && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/lcov.info
+
+      - name: Deploy to Production
+        if: github.event.pull_request.merged
+        run: echo "Deploying to Production..."

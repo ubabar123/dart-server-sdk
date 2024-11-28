@@ -1,0 +1,30 @@
+## This workflow runs on push events to any branch except main, qa, or beta.
+## Allows contributors to push changes to feature branches or other non-protected branches for lightweight checks.
+
+name: Contributor Workflow
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - qa
+      - beta
+
+jobs:
+  contributor-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          dart-version: stable
+
+      - name: Install Dependencies
+        run: dart pub get
+
+      - name: Run Static Analysis
+        run: dart analyze

@@ -1,0 +1,34 @@
+## This workflow runs on pull requests into the beta branch. Direct pushes to beta are blocked.
+
+name: Beta Workflow
+
+on:
+  pull_request:
+    branches:
+      - beta
+
+jobs:
+  beta-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        dart-version: [stable, beta, dev]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          dart-version: ${{ matrix.dart-version }}
+
+      - name: Install Dependencies
+        run: dart pub get
+
+      - name: Run Static Analysis
+        run: dart analyze
+
+      - name: Run Unit Tests
+        run: dart test

@@ -1,0 +1,45 @@
+## This workflow valides that branch and commit names are standardized for better workflow.
+
+name: Validation Workflow
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Branch Name
+        run: |
+          echo "Branch name: ${{ github.ref_name }}"
+          BRANCH_NAME=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
+          echo "Extracted branch name: $BRANCH_NAME"
+          if [[ ! "$BRANCH_NAME" =~ ^(feature|fix|hotfix|chore|test|refactor|release)/[a-z0-9_-]+$ ]]; then
+            echo "❌ Branch name '$BRANCH_NAME' does not follow the naming convention: <type>/<branch-name>"
+            echo "Valid types: feature, fix, hotfix, chore, test, refactor, release"
+            exit 1
+          fi
+        shell: bash
+
+  validate-commit-messages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Validate Commit Messages
+        run: |
+          echo "Checking commit messages..."
+          REGEX="^(feat|fix|hotfix|chore|test|refactor|release)(\\([a-z0-9_-]+\\))?: .{1,72}$"
+          INVALID_COMMITS=$(git log --format=%s origin/main..HEAD | grep -vE "$REGEX" || true)
+          if [[ -n "$INVALID_COMMITS" ]]; then
+            echo "❌ The following commit messages do not follow the convention:"
+            echo "$INVALID_COMMITS"
+            exit 1
+          fi
+        shell: bash

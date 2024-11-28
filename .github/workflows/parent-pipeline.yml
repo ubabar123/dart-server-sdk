@@ -1,0 +1,53 @@
+# This parent pipeline only runs and routes to the correct child workflow after validation checks.
+
+name: Parent Pipeline
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  trigger-validation:
+    uses: ./.github/workflows/validation-workflow.yml
+
+  determine-workflow:
+    needs: trigger-validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine Branch and Event
+        id: determine
+        run: |
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Base Branch: ${{ github.base_ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "::set-output name=branch::${{ github.ref_name }}"
+          echo "::set-output name=base_branch::${{ github.base_ref }}"
+          echo "::set-output name=event::${{ github.event_name }}"
+
+  trigger-contributor-workflow:
+    needs: [determine-workflow, trigger-validation]
+    uses: ./.github/workflows/contributor-workflow.yml
+    if: |
+      github.event_name == 'push' &&
+      github.ref_name != 'main' &&
+      github.ref_name != 'qa' &&
+      github.ref_name != 'beta'
+
+  trigger-qa-workflow:
+    needs: [determine-workflow, trigger-validation]
+    uses: ./.github/workflows/qa-workflow.yml
+    if: github.event_name == 'pull_request' && github.base_ref == 'qa'
+
+  trigger-beta-workflow:
+    needs: [determine-workflow, trigger-validation]
+    uses: ./.github/workflows/beta-workflow.yml
+    if: github.event_name == 'pull_request' && github.base_ref == 'beta'
+
+  trigger-main-workflow:
+    needs: [determine-workflow, trigger-validation]
+    uses: ./.github/workflows/main-workflow.yml
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
