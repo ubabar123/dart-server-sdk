@@ -45,8 +45,6 @@ jobs:
         run: |
           set -euo pipefail
           echo "Validating commit messages..."
-
-          # Updated regex
           REGEX="^(feat|fix|hotfix|chore|test|refactor|release)(\([a-z0-9_-]+\))?: .{1,72}$"
           INVALID_COMMITS=$(git log --format=%s HEAD | grep -vE "$REGEX" || true)
 

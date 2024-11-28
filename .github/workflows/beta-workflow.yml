@@ -1,9 +1,14 @@
-# This workflow runs on pull requests into the beta branch. Direct pushes to beta are blocked.
-
 name: Beta Workflow
 
 on:
-  workflow_call: # Enables reusability from the parent pipeline
+  workflow_call:
+    inputs:
+      branch_name:
+        required: true
+        type: string
+      event_name:
+        required: true
+        type: string
 
 jobs:
   beta-tests:

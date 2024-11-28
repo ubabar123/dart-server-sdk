@@ -1,9 +1,14 @@
-# This workflow validates and tests pull requests into the main branch. Direct pushes to main are blocked.
-
 name: Main Workflow
 
 on:
-  workflow_call: # Makes this workflow reusable
+  workflow_call:
+    inputs:
+      branch_name:
+        required: true
+        type: string
+      event_name:
+        required: true
+        type: string
 
 jobs:
   main-tests:
@@ -63,13 +68,6 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           file: coverage/lcov.info
-
-      - name: Upload Coverage Artifact
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage/lcov.info
 
       - name: Deploy to Production
         if: github.event.pull_request.merged && github.ref == 'refs/heads/main'

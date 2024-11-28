@@ -3,7 +3,14 @@
 name: QA Workflow
 
 on:
-  workflow_call: # Enables reusability from the parent pipeline
+  workflow_call:
+    inputs:
+      branch_name:
+        required: true
+        type: string
+      event_name:
+        required: true
+        type: string
 
 jobs:
   qa-tests:
