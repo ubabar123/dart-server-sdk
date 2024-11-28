@@ -28,9 +28,9 @@ jobs:
            echo "branch_name=$branch" >> $GITHUB_OUTPUT
            echo "event_name=${{ github.event_name }}" >> $GITHUB_OUTPUT
       - name: Debug Branch Name
-      run: |
-        echo "Extracted Branch Name: ${{ steps.determine.outputs.branch_name }}"
-        echo "Event Name: ${{ steps.determine.outputs.event_name }}"
+        run: |
+          echo "Extracted Branch Name: ${{ steps.determine.outputs.branch_name }}"
+          echo "Event Name: ${{ steps.determine.outputs.event_name }}"
 
   trigger-validation:
     name: Trigger Validation Workflow
