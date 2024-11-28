@@ -4,11 +4,14 @@
 name: Contributor Workflow
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - qa
-      - beta
+  workflow_call: # Makes the workflow reusable
+    inputs:
+      branch_name:
+        required: true
+        type: string
+      event_name:
+        required: true
+        type: string
 
 jobs:
   analyze-core:
@@ -105,101 +108,4 @@ jobs:
             dart-server-sdk-openfeature/info_report.txt
             dart-server-sdk-openfeature/warning_report.txt
             dart-server-sdk-openfeature/error_report.txt
-          retention-days: 1
-
-  analyze-go-integration:
-    name: Analyze Go Feature Integration Example
-    needs: analyze-core
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: stable
-
-      - name: Install Dependencies
-        run: |
-          echo "Installing dependencies for Go-feature-integration example..."
-          cd dart-server-sdk-openfeature/examples/go-feature-integration
-          if ! go mod tidy; then
-            echo "❌ Failed to install dependencies for Go example. Exiting..."
-            exit 1
-          fi
-
-      - name: Run Static Analysis
-        run: |
-          echo "Running static analysis for Go-feature-integration example..."
-          cd dart-server-sdk-openfeature/examples/go-feature-integration
-          if ! go vet ./... > analysis_report.txt 2> error_log.txt; then
-            echo "❌ Static analysis failed with errors. See details below:"
-            cat error_log.txt
-            exit 1
-          else
-            echo "✅ Static analysis completed successfully. No critical errors found."
-          fi
-
-      - name: Categorize and Count Analysis Results
-        run: |
-          echo "Categorizing analysis results..."
-          cd dart-server-sdk-openfeature/examples/go-feature-integration
-          grep -i "info" analysis_report.txt > info_report.txt || echo "No informational messages found."
-          grep -i "warning" analysis_report.txt > warning_report.txt || echo "No warnings found."
-          grep -i "error" analysis_report.txt > error_report.txt || echo "No errors found."
-
-          INFO_COUNT=$(wc -l < info_report.txt || echo 0)
-          WARNING_COUNT=$(wc -l < warning_report.txt || echo 0)
-          ERROR_COUNT=$(wc -l < error_report.txt || echo 0)
-
-          echo "Summary of analysis results:"
-          echo "Informational messages: $INFO_COUNT"
-          echo "Warnings: $WARNING_COUNT"
-          echo "Errors: $ERROR_COUNT"
-          echo ""
-
-          if [[ $INFO_COUNT -gt 0 ]]; then
-            echo "Informational messages:"
-            cat info_report.txt
-            echo ""
-          fi
-          if [[ $WARNING_COUNT -gt 0 ]]; then
-            echo "Warnings:"
-            cat warning_report.txt
-            echo ""
-          fi
-          if [[ $ERROR_COUNT -gt 0 ]]; then
-            echo "Errors:"
-            cat error_report.txt
-            echo ""
-          fi
-
-      - name: Identify Specific Commits for Issues
-        run: |
-          echo "Identifying specific commits for issues in the Go-feature-integration example..."
-          cd dart-server-sdk-openfeature/examples/go-feature-integration
-          while IFS= read -r line; do
-            file=$(echo $line | awk -F ':' '{print $1}')
-            if [[ -n "$file" ]]; then
-              git_log=$(git log -n 1 --pretty=format:"%h by %an <%ae>" -- "$file")
-              echo "File: $file"
-              echo "Issue: $line"
-              echo "Commit: $git_log"
-            else
-              echo "No file information could be extracted for: $line"
-            fi
-          done < analysis_report.txt
-
-      - name: Upload Analysis Artifacts
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: go-integration-analysis
-          path: |
-            dart-server-sdk-openfeature/examples/go-feature-integration/analysis_report.txt
-            dart-server-sdk-openfeature/examples/go-feature-integration/error_log.txt
-            dart-server-sdk-openfeature/examples/go-feature-integration/info_report.txt
-            dart-server-sdk-openfeature/examples/go-feature-integration/warning_report.txt
-            dart-server-sdk-openfeature/examples/go-feature-integration/error_report.txt
-          retention-days: 1
+          retention-days: 7
