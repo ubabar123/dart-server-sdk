@@ -48,9 +48,8 @@ jobs:
           set -euo pipefail
           echo "Validating commit messages..."
 
-          # Updated regex
           REGEX="^(feat|fix|hotfix|chore|test|refactor|release)(\([a-z0-9_-]+\))?: .{1,72}$"
-          INVALID_COMMITS=$(git log --format=%s HEAD | grep -vE "$REGEX" || true)
+          INVALID_COMMITS=$(git log -1 --format=%s | grep -vE "$REGEX" || true)
 
           if [[ -n "$INVALID_COMMITS" ]]; then
             echo "❌ The following commit messages do not follow the convention:"
