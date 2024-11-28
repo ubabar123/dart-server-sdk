@@ -6,8 +6,6 @@ on:
   push:
     branches-ignore:
       - main
-      - qa
-      - beta
 
   pull_request:
     branches:
