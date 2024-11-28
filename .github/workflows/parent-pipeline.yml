@@ -1,5 +1,7 @@
 # This parent pipeline only runs and routes to the correct child workflow after validation checks.
 
+# This parent pipeline only runs and routes to the correct child workflow after validation checks.
+
 name: Parent Pipeline
 
 on:
@@ -38,6 +40,7 @@ jobs:
 
   trigger-contributor-workflow:
     needs: [determine-workflow]
+    name: Trigger Contributor Workflow
     uses: ./.github/workflows/contributor-workflow.yml
     with:
       branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
@@ -50,6 +53,7 @@ jobs:
 
   trigger-qa-workflow:
     needs: [determine-workflow]
+    name: Trigger QA Workflow
     uses: ./.github/workflows/qa-workflow.yml
     with:
       branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
@@ -60,6 +64,7 @@ jobs:
 
   trigger-beta-workflow:
     needs: [determine-workflow]
+    name: Trigger Beta Workflow
     uses: ./.github/workflows/beta-workflow.yml
     with:
       branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
@@ -70,6 +75,7 @@ jobs:
 
   trigger-main-workflow:
     needs: [determine-workflow]
+    name: Trigger Main Workflow
     uses: ./.github/workflows/main-workflow.yml
     with:
       branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
