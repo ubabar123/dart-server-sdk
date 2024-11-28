@@ -44,7 +44,11 @@ jobs:
     name: Trigger Contributor Workflow
     needs: trigger-validation
     if: |
-      github.event_name == 'push' &&
+      (github.event_name == 'pull_request' &&
+      github.base_ref != 'main' &&
+      github.base_ref != 'qa' &&
+      github.base_ref != 'beta') ||
+      (github.event_name == 'push' &&
       needs.determine-workflow.outputs.branch_name != 'main' &&
       needs.determine-workflow.outputs.branch_name != 'qa' &&
       needs.determine-workflow.outputs.branch_name != 'beta'
