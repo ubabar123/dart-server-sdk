@@ -78,3 +78,4 @@ jobs:
     uses: ./.github/workflows/main-workflow.yml
     with:
       branch_name: ${{ needs.determine-workflow.outputs.branch_name }}
+      event_name: ${{ needs.determine-workflow.outputs.event_name }}
