@@ -1,0 +1,26 @@
+on:
+  commit_comment:
+    types: [created, edited, deleted]
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, edited, closed, reopened, synchronize]
+  deployment_status:
+    types: [success, failure, in_progress]
+  release:
+    types: [published, created, edited, deleted, prereleased, released]
+  workflow_run:
+    types: [completed, in_progress, requested]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - id: 'notify_google_chat'
+      uses: 'google-github-actions/send-google-chat-webhook@v0.0.4'
+      with:
+        webhook_url: '${{ secrets.WEBHOOK_URL }}'
