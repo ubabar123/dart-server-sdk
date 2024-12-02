@@ -1,3 +1,5 @@
+name: Notifications
+
 on:
   issue_comment:
     types: [created, edited, deleted]
@@ -7,7 +9,6 @@ on:
     types: [opened, edited, closed, reopened, synchronize]
   deployment_status:
   release:
-  workflow_run:
 
 jobs:
   notify:
