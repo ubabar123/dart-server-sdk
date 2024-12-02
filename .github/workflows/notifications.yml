@@ -1,16 +1,13 @@
 on:
-  commit_comment:
+  issue_comment:
     types: [created, edited, deleted]
   push:
     branches: [main]
   pull_request:
     types: [opened, edited, closed, reopened, synchronize]
   deployment_status:
-    types: [success, failure, in_progress]
   release:
-    types: [published, created, edited, deleted, prereleased, released]
   workflow_run:
-    types: [completed, in_progress, requested]
 
 jobs:
   notify:
