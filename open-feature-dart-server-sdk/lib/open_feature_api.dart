@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:logging/logging.dart';
 
-
+  
 import 'domain_manager.dart'; // Required for @visibleForTesting
 
 // Abstract OpenFeatureProvider interface for extensibility.
 abstract class OpenFeatureProvider {
+  
 
     static final Logger _logger = Logger('OpenFeatureProvider');
 
