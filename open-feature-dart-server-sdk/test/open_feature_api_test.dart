@@ -4,7 +4,7 @@ import 'helpers/open_feature_api_test_helpers.dart'; // Import test helper
 
 void main() {
        group('OpenFeatureAPI Tests', () {
-    setUp(() {
+    setUp(() {  
       // Reset the singleton before each test
       OpenFeatureAPI.reset();
     });
