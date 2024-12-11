@@ -9,7 +9,7 @@
     },
     {
       "name": "_macros",
-      "rootUri": "file:///C:/Users/HP/Documents/dartsdk-windows-x64-release%20(1)/dart-sdk/pkg/_macros",
+      "rootUri": "file:///C:/Users/HP/Documents/dartsdk-windows-x64-release/dart-sdk/pkg/_macros",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -362,14 +362,8 @@
       "languageVersion": "3.5"
     }
   ],
-
-
-
-  "generated": "2024-12-11T06:19:05.911498Z",
-
-
-
+  "generated": "2024-12-11T09:18:10.563712Z",
   "generator": "pub",
-  "generatorVersion": "3.5.2",
+  "generatorVersion": "3.5.4",
   "pubCache": "file:///C:/Users/HP/AppData/Local/Pub/Cache"
 }
