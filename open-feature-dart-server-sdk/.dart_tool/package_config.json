@@ -362,7 +362,11 @@
       "languageVersion": "3.5"
     }
   ],
+<<<<<<< HEAD
   "generated": "2024-12-12T14:54:23.922311Z",
+=======
+  "generated": "2024-12-12T13:32:41.664278Z",
+>>>>>>> e8375be (chore: add lock and pubspec)
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "pubCache": "file:///C:/Users/preth/AppData/Local/Pub/Cache"
