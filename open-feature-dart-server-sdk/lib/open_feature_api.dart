@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:logging/logging.dart';
-
+import 'domain_manager.dart'; // Required for @visibleForTesting
+import 'feature_provider.dart';
 import 'package:meta/meta.dart';
 
 // Define OpenFeatureEventType to represent different event types.
@@ -21,8 +22,7 @@ class OpenFeatureEvent {
 }
 
 
-import 'domain_manager.dart'; // Required for @visibleForTesting
-import 'feature_provider.dart';
+
 
 /// Abstract OpenFeatureProvider interface for extensibility
 abstract class OpenFeatureProvider {
@@ -232,9 +232,7 @@ class OpenFeatureAPI {
   Stream<OpenFeatureProvider> get providerUpdates =>
       _providerStreamController.stream;
 
-  void bindClientToProvider(String clientId, String providerName) {
-    _domainManager.bindClientToProvider(clientId, providerName);
-  }
+  
 
   // New extension-related methods
   Future<void> registerExtension(
@@ -351,8 +349,7 @@ class OpenFeatureAPI {
 
   /// Streams for listening to events and provider updates.
   Stream<OpenFeatureEvent> get events => _eventStreamController.stream;
-  Stream<OpenFeatureProvider> get providerUpdates =>
-      _providerStreamController.stream;
+ 
 }
 
 // Dependency Injection for managing the singleton lifecycle
