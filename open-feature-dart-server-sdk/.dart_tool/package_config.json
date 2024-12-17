@@ -362,12 +362,7 @@
       "languageVersion": "3.6"
     }
   ],
-<<<<<<< HEAD
-
-  "generated": "2024-12-11T11:36:38.971389Z",
-=======
   "generated": "2024-12-17T16:45:11.207218Z",
->>>>>>> 498285d (chore: update dart langauge version minimum)
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "pubCache": "file:///C:/Users/preth/AppData/Local/Pub/Cache"
