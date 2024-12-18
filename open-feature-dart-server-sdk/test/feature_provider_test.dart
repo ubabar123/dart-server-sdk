@@ -1,9 +1,11 @@
 import 'package:open_feature_dart_server_sdk/feature_provider.dart';
+
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 
 void main() {
   group('NoOpProvider', () {
+
     late NoOpProvider provider;
 
     setUp(() {
@@ -92,6 +94,7 @@ void main() {
     test('throws ProviderException if provider is not ready', () async {
       expect(() => provider.getBooleanFlag('testFlag', false),
           throwsA(isA<ProviderException>()));
+
     });
   });
 }

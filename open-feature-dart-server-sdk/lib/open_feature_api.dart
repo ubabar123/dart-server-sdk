@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import 'transaction_context.dart';
 
+
 // Define OpenFeatureEventType to represent different event types.
 enum OpenFeatureEventType {
   providerChanged,
@@ -19,7 +20,6 @@ class OpenFeatureEvent {
   final OpenFeatureEventType type;
   final String message;
   final dynamic data;
-
   OpenFeatureEvent(this.type, this.message, {this.data});
 }
 
@@ -29,7 +29,7 @@ abstract class OpenFeatureProvider {
 
   String get name;
 
-  // Shutdown method for cleaning u p resources.
+ 
 
   // Shutdown method for cleaning up resources.
   Future<void> shutdown() async {
@@ -49,6 +49,7 @@ class OpenFeatureNoOpProvider implements OpenFeatureProvider {
   @override
   Future<dynamic> getFlag(String flagKey,
       {Map<String, dynamic>? context}) async {
+
     OpenFeatureProvider._logger
         .info('Returning default value for flag: $flagKey');
 
@@ -60,6 +61,7 @@ class OpenFeatureNoOpProvider implements OpenFeatureProvider {
   Future<void> shutdown() async {
     // No-op shutdown implementation (does nothing).
     OpenFeatureProvider._logger.info('Shutting down provider: $name');
+
   }
 }
 
@@ -147,6 +149,7 @@ class OpenFeatureAPI {
   // Stack to manage transaction contexts
   final List<TransactionContext> _transactionContextStack = [];
 
+
   // Extension management
   final Map<String, ExtensionConfig> _extensions = {};
   final Map<String, dynamic> _extensionInstances = {};
@@ -154,6 +157,7 @@ class OpenFeatureAPI {
   // Global hooks and evaluation context
   final List<OpenFeatureHook> _hooks = [];
   OpenFeatureEvaluationContext? _globalContext;
+
 
   // Stream controllers
   final StreamController<OpenFeatureProvider> _providerStreamController;
@@ -167,6 +171,7 @@ class OpenFeatureAPI {
             StreamController<ExtensionEvent>.broadcast() {
     _configureLogging();
   }
+
 
   factory OpenFeatureAPI() {
     _instance ??= OpenFeatureAPI._internal();
@@ -184,7 +189,7 @@ class OpenFeatureAPI {
   void dispose() {
     _logger.info('Disposing OpenFeatureAPI resources.');
     _providerStreamController.close();
-    _eventStreamController.close();
+  _eventStreamController.close();
 
     _extensionEventController.close();
   }
@@ -205,6 +210,10 @@ class OpenFeatureAPI {
     ));
   }
 
+ 
+   
+  
+
   OpenFeatureProvider get provider => _provider;
 
   void setGlobalContext(OpenFeatureEvaluationContext context) {
@@ -213,6 +222,7 @@ class OpenFeatureAPI {
   }
 
   OpenFeatureEvaluationContext? get globalContext => _globalContext;
+
 
   void addHooks(List<OpenFeatureHook> hooks) {
     _logger.info('Adding hooks: ${hooks.length} hook(s) added.');
@@ -255,6 +265,7 @@ class OpenFeatureAPI {
   // New extension-related methods
   Future<void> registerExtension(
       String extensionId, ExtensionConfig config) async {
+
     _logger.info('Registering extension: $extensionId');
 
     // Validate dependencies
@@ -281,13 +292,11 @@ class OpenFeatureAPI {
       extensionId: extensionId,
       type: 'REGISTRATION',
       status: 'UNREGISTERED',
-    ));
-  }
+    ));  }
 
   T? getExtension<T>(String extensionId) {
     return _extensionInstances[extensionId] as T?;
   }
-
   List<String> getRegisteredExtensions() {
     return List.unmodifiable(_extensions.keys);
   }
@@ -323,6 +332,7 @@ class OpenFeatureAPI {
         ));
         return false;
       }
+
     } else {
       _logger.warning('No provider found for client $clientId');
       return false;
@@ -335,9 +345,11 @@ class OpenFeatureAPI {
     for (var hook in _hooks) {
       try {
         hook.beforeEvaluation(flagKey, context);
+
       } catch (e, stack) {
         _logger.warning(
             'Error in before-evaluation hook for flag: $flagKey', e, stack);
+
       }
     }
   }
@@ -348,15 +360,18 @@ class OpenFeatureAPI {
     for (var hook in _hooks) {
       try {
         hook.afterEvaluation(flagKey, result, context);
+
       } catch (e, stack) {
         _logger.warning(
             'Error in after-evaluation hook for flag: $flagKey', e, stack);
+
       }
     }
   }
 
   /// Streams for listening to events and provider updates.
   Stream<OpenFeatureEvent> get events => _eventStreamController.stream;
+
   // **Shutdown**: Gracefully clean up the provider during shutdown
   Future<void> shutdown() async {
     _logger.info('Shutting down OpenFeatureAPI...');
@@ -389,10 +404,12 @@ class OpenFeatureAPI {
         ? _transactionContextStack.last
         : null;
   }
+
 }
 
 // Dependency Injection for managing the singleton lifecycle
 class OpenFeatureAPILocator {
+
   // This allows replacing the instance during tests
 
   static OpenFeatureAPI instance = OpenFeatureAPI();
