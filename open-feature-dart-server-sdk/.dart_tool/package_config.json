@@ -362,7 +362,11 @@
       "languageVersion": "3.6"
     }
   ],
+<<<<<<< HEAD
   "generated": "2024-12-18T16:11:09.286455Z",
+=======
+  "generated": "2024-12-18T17:39:22.945447Z",
+>>>>>>> b2de6e49abbfa6ad65b42dbe23877c7e8b06662f
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "pubCache": "file:///C:/Users/HP/AppData/Local/Pub/Cache"
